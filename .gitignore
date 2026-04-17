@@ -65,3 +65,6 @@ pip-wheel-metadata/
 # Garantir que a pasta de dataset seja versionada
 !dataset/
 !dataset/*
+
+# Permitir notebook de EDA gerado (adiciona explicitamente este arquivo)
+!eda_penguins.ipynb
