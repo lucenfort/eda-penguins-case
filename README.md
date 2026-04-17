@@ -3,7 +3,7 @@
 
 ## Visão Geral
 
-Projeto de análise exploratória profissional para suportar operações da ONG especializada em acolhimento temporário de pinguins migratórios. O pipeline identifica padrões críticos em origem geográfica, composição de espécies, características corporais e dimorfismo sexual.
+Projeto de análise exploratória para suportar operações da ONG especializada em acolhimento temporário de pinguins migratórios. O pipeline identifica padrões críticos em origem geográfica, composição de espécies, características corporais e dimorfismo sexual.
 
 ### Perguntas Respondidas
 
