@@ -18,9 +18,9 @@ from src import visualization
 
 @dataclass
 class AnalysisConfig:
-    dataset_path: str = "dataset/penguins.csv"
     output_dir: str = "outputs/graficos"
     max_workers: int = 3  # Parallel workers for chart generation
+    # Dataset loaded from URL (Palmer Penguins official source)
 
 
 def _ensure_output_dir(path: str) -> Path:
@@ -53,13 +53,14 @@ def run_full_analysis(config: AnalysisConfig | None = None) -> Dict[str, object]
     """Run complete EDA flow with dynamic chart discovery and parallel generation.
     
     Features:
+    - Loads Palmer Penguins dataset from official URL (CC-0 License)
     - Automatically discovers all plot_* functions from visualization module
     - Generates charts in parallel (configurable worker threads)
-    - Polars-only data manipulation (no Pandas)
+    - Polars-only data manipulation (no Pandas, no DuckDB)
     - Exports clean parquet file
     
     Args:
-        config: AnalysisConfig object with dataset and output paths
+        config: AnalysisConfig object with output paths
         
     Returns:
         Dictionary with analysis results, charts, and metadata
@@ -69,8 +70,8 @@ def run_full_analysis(config: AnalysisConfig | None = None) -> Dict[str, object]
         config = AnalysisConfig()
 
     out_dir = _ensure_output_dir(config.output_dir)
-    df = load_penguins(config.dataset_path)
-    print(f"✅ Dataset loaded: {df.shape[0]} registros")
+    df = load_penguins()  # Load from URL, no path parameter
+    print(f"✅ Dataset loaded from Palmer Penguins URL: {df.shape[0]} registros")
 
     # Run all analyses
     analyses = analysis.compute_all_analyses(df)
@@ -149,8 +150,9 @@ def run_full_analysis(config: AnalysisConfig | None = None) -> Dict[str, object]
         except Exception as e:
             print(f"  ❌ {task_name}: {e}")
 
-    # Export clean parquet
+    # Export clean parquet - ensure directory exists
     clean_parquet_path = Path("dataset/penguins_clean.parquet")
+    clean_parquet_path.parent.mkdir(parents=True, exist_ok=True)
     df.write_parquet(clean_parquet_path)
     print(f"💾 Parquet exportado: {clean_parquet_path}")
 

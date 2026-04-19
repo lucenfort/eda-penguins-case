@@ -53,7 +53,7 @@ def plot_missing_counts(missing_summary: pl.DataFrame, out_dir: Path) -> str:
     plt.xlabel("Coluna")
     plt.ylabel("Quantidade de faltantes")
     plt.xticks(rotation=20)
-    return _save_fig(out_dir / "grafico_01_numero_dados_faltantes_por_coluna.png")
+    return _save_fig(out_dir / "eda_01_dados_faltantes_por_coluna.png")
 
 
 def plot_island_counts(island_counts: pl.DataFrame, out_dir: Path) -> str:
@@ -86,7 +86,7 @@ def plot_island_counts(island_counts: pl.DataFrame, out_dir: Path) -> str:
         frameon=False,
     )
     plt.axis("equal")
-    return _save_fig(out_dir / "grafico_02_numero_de_pinguins_por_ilha.png")
+    return _save_fig(out_dir / "eda_02_pinguins_por_ilha.png")
 
 
 def plot_species_counts(species_counts: pl.DataFrame, out_dir: Path) -> str:
@@ -119,7 +119,7 @@ def plot_species_counts(species_counts: pl.DataFrame, out_dir: Path) -> str:
         frameon=False,
     )
     plt.axis("equal")
-    return _save_fig(out_dir / "grafico_03_numero_de_pinguins_por_especie.png")
+    return _save_fig(out_dir / "eda_03_pinguins_por_especie.png")
 
 
 def plot_scatter_measures_by_species(df: pl.DataFrame, out_dir: Path) -> str:
@@ -137,7 +137,7 @@ def plot_scatter_measures_by_species(df: pl.DataFrame, out_dir: Path) -> str:
     plt.title("Comprimento vs profundidade do bico por espécie")
     plt.xlabel("Comprimento do bico (mm)")
     plt.ylabel("Profundidade do bico (mm)")
-    return _save_fig(out_dir / "grafico_04_relacao_medidas_por_especie.png")
+    return _save_fig(out_dir / "eda_04_relacao_medidas_por_especie.png")
 
 
 def plot_pairplot_species(df: pl.DataFrame, out_dir: Path) -> str:
@@ -182,7 +182,7 @@ def plot_pairplot_species(df: pl.DataFrame, out_dir: Path) -> str:
                 ax.set_yticklabels([])
     
     fig.suptitle("Relações entre medidas por espécie", fontsize=14)
-    path = out_dir / "grafico_05_pairplot_medidas_por_especie.png"
+    path = out_dir / "eda_05_pairplot_medidas_por_especie.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return str(path)
@@ -228,7 +228,7 @@ def plot_mass_by_sex_species(df: pl.DataFrame, out_dir: Path) -> str:
         ax.grid(True, alpha=0.3, axis="y")
     
     fig.suptitle("Massa corporal por sexo em cada espécie", fontsize=14)
-    path = out_dir / "grafico_06_massa_por_sexo_em_cada_especie.png"
+    path = out_dir / "eda_06_massa_por_sexo_em_cada_especie.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return str(path)
@@ -285,7 +285,7 @@ def plot_pairplot_by_species_sex(df: pl.DataFrame, out_dir: Path) -> List[str]:
         
         title = f"Relacao entre medidas e sexo - {species.capitalize()}"
         fig.suptitle(title, fontsize=12)
-        path = out_dir / f"grafico_{file_idx:02d}_pairplot_{species}_sexo.png"
+        path = out_dir / f"eda_{file_idx:02d}_pairplot_{species}_sexo.png"
         fig.savefig(path, dpi=300, bbox_inches="tight")
         plt.close(fig)
         files.append(str(path))

@@ -2,4 +2,4 @@ polars
 seaborn
 matplotlib
 jupyter
-duckdb
+pyarrow
