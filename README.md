@@ -65,8 +65,6 @@ flowchart TD
 
 ## Créditos e Licença dos Dados
 
-Breve apresentação:
-
 O Palmer Penguins é um dataset aberto de biometria de pinguins antárticos, amplamente usado em ensino e benchmarking de análise de dados e classificação multiclasse.
 
 Créditos e conformidade de licença:
