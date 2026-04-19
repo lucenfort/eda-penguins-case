@@ -68,3 +68,8 @@ pip-wheel-metadata/
 
 # Permitir notebook de EDA gerado (adiciona explicitamente este arquivo)
 !eda_penguins.ipynb
+
+# Permitir notebooks no diretório `notebooks/` (anula a linha global "*.ipynb")
+!notebooks/
+!notebooks/*.ipynb
+!notebooks/**/*.ipynb
