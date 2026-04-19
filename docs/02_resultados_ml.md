@@ -11,17 +11,6 @@ Este documento apresenta os resultados completos do treinamento e avaliação de
 
 ---
 
-## 🏆 Melhor Modelo
-
-**Nome:** Random Forest  
-**Acurácia:** 1.0000 (100.00%)  
-**F1-Score (macro):** 1.0000  
-**F1-Score (weighted):** 1.0000  
-**Cross-Validation (5-fold):** 0.9925 ± 0.0151  
-**Overfitting Gap:** 0.0000
-
----
-
 ## 📈 Comparativo de Modelos
 
 ```
@@ -117,24 +106,5 @@ Classes: adelie, chinstrap, gentoo
 - `ml_12_cross_validation.png` - Validação cruzada 5-fold
 - `ml_13_overfitting_analysis.png` - Análise de overfitting (gap treino-teste)
 - `ml_14_confusion_matrices.png` - Matrizes de confusão para todos os 6 modelos
-
----
-
-## 🎯 Recomendações
-
-1. **Modelo Recomendado:** {best_result['model_name']}
-   - Melhor trade-off entre performance e interpretabilidade
-   - Acurácia consistente em validação cruzada
-   
-2. **Para Produção:**
-   - Usar {best_result['model_name']} como modelo principal
-   - Implementar ensemble com 2-3 top modelos para maior robustez
-   - Revalidar periodicamente com novos dados
-
-3. **Melhorias Futuras:**
-   - Hyperparameter tuning com GridSearchCV/RandomizedSearchCV
-   - Feature engineering adicional
-   - Balanceamento de classes se necessário
-   - Técnicas de ensemble avançadas
 
 ---
