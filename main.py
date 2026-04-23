@@ -104,27 +104,32 @@ def run_ml_pipeline():
         
         # ===== ETAPA 2: INICIALIZAÇÃO DE MODELOS =====
         print("\n" + "-"*80)
-        print("ETAPA 2: Inicialização de 6 Modelos")
+        print("ETAPA 2: Inicialização de Modelos")
         print("-"*80)
         
         models_manager = PenguinsMLModels(random_state=42)
-        print(f"✅ 6 modelos inicializados:")
+        print(f"✅ {len(models_manager.models)} modelos base inicializados:")
         for key, config in models_manager.models.items():
             print(f"   • {config['name']}")
+        print("   • Soft Voting Ensemble")
+        print("   • Stacking Ensemble")
         
         # ===== ETAPA 3: TREINAMENTO =====
         print("\n" + "-"*80)
-        print("ETAPA 3: Treinamento de Todos os 6 Modelos")
+        print("ETAPA 3: Treinamento com Tuning + Ensembles")
         print("-"*80)
         
-        training_results = models_manager.train_all(X_train, y_train)
+        training_results = models_manager.train_all(X_train, y_train, perform_tuning=True)
         success_count = sum(1 for r in training_results.values() if r['status'] == 'sucesso')
+        total_models = len(training_results)
         
-        print(f"✅ {success_count}/6 modelos treinados com sucesso!")
+        print(f"✅ {success_count}/{total_models} modelos treinados com sucesso!")
         for model_key, result in training_results.items():
             status_icon = "✅" if result['status'] == 'sucesso' else "❌"
-            model_name = models_manager.models[model_key]['name']
+            model_name = result['name']
             print(f"   {status_icon} {model_name}")
+            if result.get('tuning'):
+                print(f"      ↳ tuning {result['tuning']['strategy']}: f1_macro={result['tuning']['best_score']:.4f}")
         
         # ===== ETAPA 4: AVALIAÇÃO =====
         print("\n" + "-"*80)
@@ -135,12 +140,12 @@ def run_ml_pipeline():
         
         for model_key, train_result in training_results.items():
             if train_result['status'] == 'sucesso':
-                model_config = models_manager.models[model_key]
                 model = train_result['model']
+                model_name = train_result['name']
                 
                 evaluator.evaluate_model(
                     model_key=model_key,
-                    model_name=model_config['name'],
+                    model_name=model_name,
                     model=model,
                     X_train=X_train,
                     X_test=X_test,
@@ -149,7 +154,7 @@ def run_ml_pipeline():
                     y_test_original=y_test_original
                 )
         
-        print(f"✅ Avaliação completa de todos os modelos!")
+        print(f"✅ Avaliação completa de todos os modelos treinados!")
         
         # ===== ETAPA 5: COMPARAÇÃO =====
         print("\n" + "-"*80)
@@ -157,7 +162,7 @@ def run_ml_pipeline():
         print("-"*80)
         
         comparison_df = evaluator.compare_all_models()
-        print(f"✅ Comparativo gerado com 7 métricas por modelo")
+        print(f"✅ Comparativo gerado com 8 métricas por modelo")
         
         # ===== ETAPA 6: MELHOR MODELO =====
         print("\n" + "-"*80)
@@ -212,7 +217,8 @@ def run_ml_pipeline():
         for model_key, model in models_manager.trained_models.items():
             filepath = f"models/{model_key}.pkl"
             joblib.dump(model, filepath)
-            print(f"   ✅ {models_manager.models[model_key]['name']:30s} → {filepath}")
+            model_name = training_results.get(model_key, {}).get('name', model_key)
+            print(f"   ✅ {model_name:30s} → {filepath}")
         
         # ===== ETAPA 10: PREPROCESSADORES =====
         print("\n" + "-"*80)
@@ -241,11 +247,11 @@ def run_ml_pipeline():
         print("✅ FASE 2: Machine Learning Classification CONCLUÍDA COM SUCESSO!")
         print("="*80)
         print(f"\n📋 Resumo Final:")
-        print(f"   • 6 modelos treinados e avaliados")
+        print(f"   • {total_models} modelos treinados e avaliados")
         print(f"   • Melhor modelo: {best_result['model_name']}")
         print(f"   • Acurácia: {best_result['accuracy']*100:.2f}%")
         print(f"   • 5 gráficos comparativos gerados")
-        print(f"   • 6 modelos salvos em models/")
+        print(f"   • {len(models_manager.trained_models)} modelos salvos em models/")
         print(f"   • Relatório salvo em docs/02_resultados_ml.md")
         
         return True
@@ -262,11 +268,13 @@ def generate_report(evaluator, comparison_df, best_result, best_key, class_names
     
     report_path = "docs/02_resultados_ml.md"
     
+    total_models = len(evaluator.results)
+
     report_content = f"""# Resultados do Pipeline de Classificação de Espécies de Pinguins
 
 ## 📊 Resumo Executivo
 
-Este documento apresenta os resultados completos do treinamento e avaliação de **6 modelos de aprendizado de máquina** para classificação de espécies de pinguins baseado em características físicas.
+Este documento apresenta os resultados completos do treinamento e avaliação de **{total_models} modelos de aprendizado de máquina** para classificação de espécies de pinguins baseado em características físicas.
 
 **Dataset:** Palmer Penguins (344 registros originais → 333 após limpeza)  
 **Classes:** Adelie, Gentoo, Chinstrap  
@@ -360,6 +368,16 @@ Classes: {', '.join(class_names)}
 - **Vantagens:** Altamente flexível, captura padrões complexos
 - **Desvantagens:** Requer mais tuning, risco de overfitting
 
+### 7. Soft Voting Ensemble
+- **Tipo:** Ensemble por votação probabilística
+- **Vantagens:** Combina pontos fortes de modelos heterogêneos
+- **Desvantagens:** Pode herdar vieses dos modelos base
+
+### 8. Stacking Ensemble
+- **Tipo:** Ensemble em camadas (meta-learning)
+- **Vantagens:** Captura complementaridade entre modelos base
+- **Desvantagens:** Mais complexo e com maior custo de treino
+
 ---
 
 ## 📈 Visualizações Geradas
@@ -443,7 +461,7 @@ def main():
     print("█" * 80)
     print("\n📊 Resumo Geral do Projeto:")
     print(f"   ✅ Fase 1 (EDA): 9 gráficos + 5 perguntas respondidas")
-    print(f"   ✅ Fase 2 (ML): 6 modelos treinados + melhor model com 100% acurácia")
+    print(f"   ✅ Fase 2 (ML): modelos com tuning, balanceamento e ensembles avançados")
     print(f"   ✅ Artefatos: modelos salvos em models/ + gráficos em outputs/graficos/")
     print(f"\n📁 Documentação:")
     print(f"   📖 README.md - Guia de uso completo")

@@ -12,8 +12,6 @@ Responsável pela avaliação completa de modelos:
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import Normalize
 import seaborn as sns
 from typing import Dict, List, Tuple, Any
 from sklearn.metrics import (
@@ -431,12 +429,27 @@ class PenguinsMLEvaluator:
         sns.set_theme(style="white", context="talk")
         
         n_models = len(self.results)
-        fig, axes = plt.subplots(2, 3, figsize=(17, 10))
-        # Reserva uma margem fixa à direita para a barra de escala externa.
-        fig.subplots_adjust(left=0.06, right=0.88, bottom=0.07, top=0.90, wspace=0.35, hspace=0.35)
-        axes = axes.flatten()
+
+        # Para 8 modelos, 2x4 dá melhor aproveitamento horizontal e reduz sobreposição.
+        if n_models == 8:
+            n_rows, n_cols = 2, 4
+            fig = plt.figure(figsize=(20, 10))
+            gs = fig.add_gridspec(n_rows, n_cols, wspace=0.30, hspace=0.42)
+            axes = np.array([fig.add_subplot(gs[r, c]) for r in range(n_rows) for c in range(n_cols)])
+        else:
+            # Fallback para outros cenários, mantendo layout compacto.
+            n_cols = 4 if n_models > 4 else max(1, n_models)
+            n_rows = (n_models + n_cols - 1) // n_cols
+            fig, axes = plt.subplots(n_rows, n_cols, figsize=(5.0 * n_cols, 4.6 * n_rows))
+        
+        # Garantir vetor 1D de eixos em qualquer caso.
+        axes = np.array(axes).reshape(-1)
         vmin = 0.0
         vmax = 100.0
+        cmaps = [
+            'Blues', 'Greens', 'Oranges', 'Purples',
+            'Reds', 'YlGnBu', 'PuRd', 'BuPu'
+        ]
         
         for idx, (model_key, result) in enumerate(self.results.items()):
             cm = result['confusion_matrix']
@@ -448,7 +461,7 @@ class PenguinsMLEvaluator:
                 cm_percent,
                 annot=True,
                 fmt='.1f',
-                cmap='Blues',
+                cmap=cmaps[idx % len(cmaps)],
                 xticklabels=self.class_names,
                 yticklabels=self.class_names,
                 ax=axes[idx],
@@ -459,8 +472,11 @@ class PenguinsMLEvaluator:
                 annot_kws={'size': 9}
             )
             
-            axes[idx].set_title(f"{result['model_name']}\nAccuracy: {result['accuracy']:.3f}",
-                              fontsize=11, fontweight='bold')
+            axes[idx].set_title(
+                f"{result['model_name']}\nAccuracy: {result['accuracy']:.3f}",
+                fontsize=11,
+                fontweight='bold'
+            )
             axes[idx].set_ylabel('True label', fontsize=10)
             axes[idx].set_xlabel('Predicted label', fontsize=10)
             axes[idx].tick_params(labelsize=9)
@@ -469,15 +485,8 @@ class PenguinsMLEvaluator:
         for idx in range(n_models, len(axes)):
             fig.delaxes(axes[idx])
 
-        if n_models > 0:
-            sm = ScalarMappable(norm=Normalize(vmin=vmin, vmax=vmax), cmap='Blues')
-            sm.set_array([])
-            # Eixo dedicado da colorbar fora da grade principal para evitar sobreposição.
-            cax = fig.add_axes([0.90, 0.16, 0.018, 0.68])
-            cbar = fig.colorbar(sm, cax=cax)
-            cbar.set_label('Percent (%)', rotation=270, labelpad=15)
-        
-        plt.suptitle('Matrizes de Confusão: Todos os Modelos', fontsize=15, fontweight='bold', y=0.965)
+        plt.suptitle('Matrizes de Confusão: Todos os Modelos', fontsize=15, fontweight='bold', y=0.98)
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
         plt.savefig(f"{output_dir}/ml_14_confusion_matrices.png", dpi=300, bbox_inches='tight')
         print(f"   ✅ Salvo: ml_14_confusion_matrices.png")
         plt.close()

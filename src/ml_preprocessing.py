@@ -11,6 +11,7 @@ Responsável pela preparação de dados para treinamento de modelos:
 import polars as pl
 import pandas as pd
 import numpy as np
+from collections import Counter
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from typing import Tuple, Dict, Any
@@ -35,6 +36,81 @@ class PenguinsMLPreprocessor:
         self.feature_names = None
         self.categorical_features = None
         self.numeric_features = None
+        self.imbalance_threshold = 0.75
+
+    def _add_feature_engineering(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Adiciona features derivadas biométricas para aumentar separabilidade."""
+        engineered = df.copy()
+
+        # Razões e interações simples ajudam modelos lineares e baseados em distância.
+        engineered['bill_ratio'] = engineered['bill_length_mm'] / (engineered['bill_depth_mm'] + 1e-6)
+        engineered['body_mass_kg'] = engineered['body_mass_g'] / 1000.0
+        engineered['flipper_bill_interaction'] = engineered['flipper_length_mm'] * engineered['bill_length_mm']
+        engineered['mass_per_flipper_mm'] = engineered['body_mass_g'] / (engineered['flipper_length_mm'] + 1e-6)
+
+        return engineered
+
+    def _balance_classes_if_needed(
+        self,
+        X_train: pd.DataFrame,
+        y_train: np.ndarray
+    ) -> tuple[pd.DataFrame, np.ndarray, Dict[str, Any]]:
+        """Aplica oversampling simples da minoria quando detectar desbalanceamento relevante."""
+        class_counts = Counter(y_train)
+        min_count = min(class_counts.values())
+        max_count = max(class_counts.values())
+        ratio = min_count / max_count
+
+        info = {
+            'applied': False,
+            'before': dict(class_counts),
+            'after': dict(class_counts),
+            'imbalance_ratio': ratio,
+            'threshold': self.imbalance_threshold,
+        }
+
+        if ratio >= self.imbalance_threshold:
+            return X_train, y_train, info
+
+        print("\n⚖️ Desbalanceamento detectado no treino.")
+        print(f"   Razão min/max: {ratio:.3f} (limiar: {self.imbalance_threshold:.3f})")
+        print("   Aplicando oversampling da classe minoritária...")
+
+        target_size = max_count
+        X_parts = []
+        y_parts = []
+
+        for class_name, count in class_counts.items():
+            class_mask = y_train == class_name
+            X_class = X_train.loc[class_mask]
+            y_class = y_train[class_mask]
+
+            if count < target_size:
+                sampled_idx = np.random.RandomState(self.random_state).choice(
+                    np.arange(len(X_class)),
+                    size=target_size,
+                    replace=True,
+                )
+                X_bal = X_class.iloc[sampled_idx]
+                y_bal = y_class[sampled_idx]
+            else:
+                X_bal = X_class
+                y_bal = y_class
+
+            X_parts.append(X_bal)
+            y_parts.append(y_bal)
+
+        X_balanced = pd.concat(X_parts, axis=0).reset_index(drop=True)
+        y_balanced = np.concatenate(y_parts)
+
+        permutation = np.random.RandomState(self.random_state).permutation(len(y_balanced))
+        X_balanced = X_balanced.iloc[permutation].reset_index(drop=True)
+        y_balanced = y_balanced[permutation]
+
+        info['applied'] = True
+        info['after'] = dict(Counter(y_balanced))
+
+        return X_balanced, y_balanced, info
         
     def load_and_prepare(self, parquet_path: str) -> Dict[str, Any]:
         """
@@ -77,13 +153,25 @@ class PenguinsMLPreprocessor:
         print(f"📊 Registros removidos: {len(df) - len(df_clean)}")
         print(f"📊 Registros restantes: {len(df_clean)}")
         
-        # ===== ETAPA 2: SEPARAR FEATURES E TARGET =====
+        # ===== ETAPA 2: FEATURE ENGINEERING =====
         print("\n" + "=" * 60)
-        print("FASE 3: IDENTIFICAÇÃO DE FEATURES E TARGET")
+        print("FASE 3: FEATURE ENGINEERING")
+        print("=" * 60)
+
+        df_features = self._add_feature_engineering(df_clean)
+        print("✅ Features derivadas adicionadas:")
+        print("   - bill_ratio")
+        print("   - body_mass_kg")
+        print("   - flipper_bill_interaction")
+        print("   - mass_per_flipper_mm")
+
+        # ===== ETAPA 3: SEPARAR FEATURES E TARGET =====
+        print("\n" + "=" * 60)
+        print("FASE 4: IDENTIFICAÇÃO DE FEATURES E TARGET")
         print("=" * 60)
         
         # Target: species (variável a prever)
-        y = np.array(df_clean['species'].tolist())  # Converte para numpy array padrão
+        y = np.array(df_features['species'].tolist())  # Converte para numpy array padrão
         unique_species = np.unique(y)
         print(f"✅ Target (species): {len(unique_species)} classes")
         print(f"   Classes: {unique_species}")
@@ -97,19 +185,21 @@ class PenguinsMLPreprocessor:
         self.categorical_features = ['island', 'sex']
         self.numeric_features = [
             'bill_length_mm', 'bill_depth_mm', 
-            'flipper_length_mm', 'body_mass_g'
+            'flipper_length_mm', 'body_mass_g',
+            'bill_ratio', 'body_mass_kg',
+            'flipper_bill_interaction', 'mass_per_flipper_mm'
         ]
         
         # Features: tudo exceto species e year
-        X = df_clean[self.numeric_features + self.categorical_features].copy()
+        X = df_features[self.numeric_features + self.categorical_features].copy()
         
         print(f"\n✅ Features numéricas: {self.numeric_features}")
         print(f"✅ Features categóricas: {self.categorical_features}")
         print(f"✅ Total de features (antes encoding): {len(self.numeric_features + self.categorical_features)}")
         
-        # ===== ETAPA 3: ONE-HOT ENCODING =====
+        # ===== ETAPA 4: ONE-HOT ENCODING =====
         print("\n" + "=" * 60)
-        print("FASE 4: ONE-HOT ENCODING (VARIÁVEIS CATEGÓRICAS)")
+        print("FASE 5: ONE-HOT ENCODING (VARIÁVEIS CATEGÓRICAS)")
         print("=" * 60)
         
         # One-hot encoding para island e sex
@@ -123,9 +213,9 @@ class PenguinsMLPreprocessor:
         print(f"✅ Após one-hot encoding: {X_encoded.shape[1]} features")
         print(f"   Novas colunas: {X_encoded.columns.tolist()}")
         
-        # ===== ETAPA 4: TRAIN/TEST SPLIT (ESTRATIFICADO) =====
+        # ===== ETAPA 5: TRAIN/TEST SPLIT (ESTRATIFICADO) =====
         print("\n" + "=" * 60)
-        print("FASE 5: DIVISÃO TRAIN/TEST (80/20 ESTRATIFICADO)")
+        print("FASE 6: DIVISÃO TRAIN/TEST (80/20 ESTRATIFICADO)")
         print("=" * 60)
         
         X_train, X_test, y_train, y_test = train_test_split(
@@ -150,10 +240,22 @@ class PenguinsMLPreprocessor:
             count = (y_test == sp).sum()
             pct = (count / len(y_test)) * 100
             print(f"   - {sp}: {count} ({pct:.1f}%)")
-        
-        # ===== ETAPA 5: NORMALIZAÇÃO =====
+
+        # ===== ETAPA 6: BALANCEAMENTO (SE NECESSÁRIO) =====
         print("\n" + "=" * 60)
-        print("FASE 6: NORMALIZAÇÃO (STANDARDSCALER)")
+        print("FASE 7: ANÁLISE DE BALANCEAMENTO DE CLASSES")
+        print("=" * 60)
+
+        X_train, y_train, balancing_info = self._balance_classes_if_needed(X_train, y_train)
+
+        if balancing_info['applied']:
+            print("✅ Oversampling aplicado no conjunto de treino.")
+        else:
+            print("✅ Balanceamento adicional não necessário para treino.")
+        
+        # ===== ETAPA 7: NORMALIZAÇÃO =====
+        print("\n" + "=" * 60)
+        print("FASE 8: NORMALIZAÇÃO (STANDARDSCALER)")
         print("=" * 60)
         
         # Fit scaler apenas em dados de treino
@@ -198,6 +300,7 @@ class PenguinsMLPreprocessor:
                 'n_test': X_test_scaled.shape[0],
                 'numeric_features': self.numeric_features,
                 'categorical_features': self.categorical_features,
+                'balancing': balancing_info,
             }
         }
         

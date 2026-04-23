@@ -50,7 +50,7 @@ flowchart TD
     B --> C[Dataset limpo: penguins_clean.parquet]
     C --> D[ML]
     D --> D1[Preprocessamento e split estratificado]
-    D --> D2[Treinamento de 6 modelos]
+    D --> D2[Treinamento de 8 modelos]
     D --> D3[Avaliação: accuracy, F1, CV e overfitting]
     D --> E[Artefatos: gráficos e modelos serializados]
 ```
@@ -61,7 +61,7 @@ flowchart TD
 2. Distribuição geográfica: maior concentração na ilha Biscoe.
 3. Distribuição por espécie: Adelie predominante.
 4. Relação espécie-medidas: separação clara por massa, nadadeira e bico.
-5. Classificação: acurácia de teste entre 97.01% e 100.00% nos modelos avaliados.
+5. Classificação: 8 modelos avaliados; acurácia de teste entre 98.51% e 100.00%.
 
 ## Créditos e Licença dos Dados
 

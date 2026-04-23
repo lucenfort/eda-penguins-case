@@ -24,6 +24,7 @@ Interpretação:
 
 1. O dataset é adequado para análise estatística e modelagem supervisionada.
 2. A ausência em sex não compromete a classificação por species, mas limita análises mais finas de dimorfismo sem filtros.
+3. O pré-processamento gera base limpa suficiente para o pipeline de ML com 8 modelos comparados.
 
 Figura:
 
