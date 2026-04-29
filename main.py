@@ -9,7 +9,7 @@ Projeto integrado que executa:
 
 2. FASE 2: Machine Learning Classification
    - Preparação de dados para ML
-   - Treinamento de 6 modelos diferentes
+    - Treinamento de 8 modelos diferentes
    - Avaliação e comparação
    - Geração de relatório
 
@@ -386,7 +386,7 @@ Classes: {', '.join(class_names)}
 - `ml_11_comparacao_f1score.png` - Comparação de F1-Score (macro vs weighted)
 - `ml_12_cross_validation.png` - Validação cruzada 5-fold
 - `ml_13_overfitting_analysis.png` - Análise de overfitting (gap treino-teste)
-- `ml_14_confusion_matrices.png` - Matrizes de confusão para todos os 6 modelos
+- `ml_14_confusion_matrices.png` - Matrizes de confusão para todos os 8 modelos
 
 ---
 
@@ -466,9 +466,8 @@ def main():
     print(f"\n📁 Documentação:")
     print(f"   📖 README.md - Guia de uso completo")
     print(f"   📖 docs/02_resultados_ml.md - Relatório técnico")
-    print(f"   📖 ML_IMPLEMENTATION_SUMMARY.md - Sumário de implementação")
-    print(f"   📖 notebooks/01_eda_penguins.ipynb - Notebook EDA interativo")
-    print(f"   📖 notebooks/02_ml_classification_analysis.ipynb - Notebook ML interativo")
+    print(f"   📖 notebooks/01_eda_notebook.ipynb - Notebook EDA interativo")
+    print(f"   📖 notebooks/02_ml_notebook.ipynb - Notebook ML interativo")
     print("\n" + "█" * 80 + "\n")
     
     return True
