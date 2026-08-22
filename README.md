@@ -1,88 +1,122 @@
-# EDA & Penguins Classification
+<div align="center">
+  <img src="assets/banner.svg" alt="Palmer Penguins EDA & ML Banner" width="100%" />
 
-<p align="center">
-  <img src="./assets/banner.svg" alt="Project Banner" width="100%" />
-</p>
+  <br/><br/>
 
-<p align="left">
-	<img src="https://img.shields.io/badge/Python-3.x-FFD700?style=for-the-badge&logo=python&logoColor=111111&labelColor=0B0B0B" alt="Python" />
-	<img src="https://img.shields.io/badge/Seaborn-00FFF7?style=for-the-badge&logo=pandas&logoColor=111111&labelColor=0B0B0B" alt="Seaborn" />
-	<img src="https://img.shields.io/badge/Scikit_Learn-9F00FF?style=for-the-badge&logo=scikit-learn&logoColor=111111&labelColor=0B0B0B" alt="Scikit-Learn" />
-	<img src="https://img.shields.io/badge/Status-Finalizado-FF00FF?style=for-the-badge&logoColor=111111&labelColor=0B0B0B" alt="Status" />
-</p>
-
-Repositório técnico focado em Análise Exploratória de Dados (EDA) e classificação supervisionada multiclasse utilizando o dataset Palmer Penguins. O projeto demonstra um fluxo completo desde a limpeza de dados até a comparação de 8 modelos de Machine Learning.
-
-## [>] SYS.NAVEGAÇÃO
-
-[Objetivo](#-objetivo) • [Estrutura](#-estrutura-essencial) • [Execução](#-execução) • [Fluxo](#-fluxo-resumo-eda-e-ml) • [Resultados](#-resultados-principais)
+  <p align="center">
+    <strong>Estudo Estatístico Multivariado & Benchmark de Classificação Supervisionada</strong><br/>
+    Fluxo completo de Ciência de Dados: da auditoria e limpeza de dados até a comparação empírica de <strong>8 algoritmos de Machine Learning</strong> sobre o dataset <strong>Palmer Penguins</strong>.
+  </p>
+</div>
 
 ---
 
-## [~] OBJETIVO_SISTEMA
+## 📌 1. Visão Geral da Arquitetura & Pipeline
 
-1. **Caracterização**: Avaliar qualidade e distribuição dos dados biométricos.
-2. **Discriminação**: Analisar a separabilidade das espécies via medidas físicas.
-3. **Modelagem**: Treinar e comparar 8 algoritmos de classificação (Ensembles, SVM, MLP).
+O pipeline integra análise descritiva e inferencial, engenharia de atributos e uma esteira de avaliação rigorosa com validação cruzada estratificada:
 
-## [=] ESTRUTURA_ESSENCIAL
-
+```mermaid
+flowchart LR
+    A[Dataset Palmer Penguins CSV] --> B[Auditoria & Limpeza Seletiva]
+    B --> C[Análise Multivariada & Matrizes de Correlação]
+    C --> D[Dataset Enriquecido .parquet]
+    D --> E[Benchmark de 8 Modelos de ML]
+    E --> F[Relatórios Analíticos & Modelos Serializados]
 ```
+
+---
+
+## 📁 2. Estrutura do Repositório
+
+```text
 eda-penguins-case/
-├── assets/               # HUDs e Banner Cyberpunk
-├── dataset/              # Dados originais e processados (Parquet)
-├── docs/                 # Relatórios automáticos de EDA e ML
-├── models/               # Modelos serializados (.pkl)
-├── notebooks/            # Exploração interativa (Jupyter)
-├── outputs/              # Gráficos e visualizações geradas
-├── src/                  # Módulos de processamento e treinamento
-├── main.py               # Orquestrador do pipeline completo
-├── requirements.txt      # Dependências do sistema
-└── README.md             # Documentação técnica
+├── assets/                  # Banners dinâmicos e identidades visuais do projeto
+├── dataset/                 # Dados originais e partições processadas em formato colunar (.parquet)
+├── docs/                    # Relatórios detalhados gerados automaticamente (EDA & ML)
+├── models/                  # Modelos treinados e serializados (.pkl) prontos para inferência
+├── notebooks/               # Notebooks Jupyter para experimentação e exploração interativa
+├── outputs/                 # Gráficos estatísticos de alta resolução gerados pelo pipeline
+├── src/                     # Módulos Python encapsulados de processamento, análise e treino
+├── main.py                  # Orquestrador executável do pipeline completo
+├── requirements.txt         # Dependências do ecossistema Python (Pandas, Seaborn, Sklearn)
+└── README.md                # Documentação técnica e guia de reprodução
 ```
 
 ---
 
-## [*] INSTALAÇÃO_E_EXECUÇÃO
+## ⚙️ 3. Configuração do Ambiente
 
-### 1. Preparar Ambiente
+### Pré-requisitos
+- Python 3.9+
+- Git
+
+### Instalação
+
 ```bash
-python -m venv .venv
+# 1. Clone o repositório
+git clone https://github.com/lucenfort/eda-penguins-case.git
+cd eda-penguins-case
+
+# 2. Crie e ative o ambiente virtual
+python3 -m venv .venv
 source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
+
+# 3. Instale as dependências
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Executar Pipeline
+---
+
+## 🚀 4. Execução dos Componentes
+
+### 4.1 Execução do Pipeline Completo
+Para processar os dados brutos, gerar todas as análises estatísticas e treinar o benchmark de modelos:
+
 ```bash
-python main.py
+python3 main.py
+```
+
+Todos os relatórios estatísticos e artefatos de modelos serão automaticamente persistidos nas pastas `docs/`, `outputs/` e `models/`.
+
+### 4.2 Exploração Interativa via Jupyter Notebook
+```bash
+jupyter notebook notebooks/01_eda_notebook.ipynb
 ```
 
 ---
 
-## [&] FLUXO_RESUMO_EDA_E_ML
+## 📊 5. Principais Resultados & Benchmark de Modelos
 
-```mermaid
-flowchart TD
-    A[Dataset Palmer Penguins CSV] --> B[EDA]
-    B --> B1[Qualidade dos dados]
-    B --> B2[Distribuições por ilha e espécie]
-    B --> B3[Relações biométricas]
-    B --> C[Dataset limpo: Parquet]
-    C --> D[ML Pipeline]
-    D --> D1[Split Estratificado]
-    D --> D2[Treinamento 8 Modelos]
-    D --> D3[Avaliação e Tuning]
-    D --> E[Relatório Final e Modelos]
-```
+### Insights Estatísticos & Biometria
+- **Separação Morfológica:** A combinação entre o comprimento da nadadeira (*flipper length*) e a massa corporal (*body mass*) fornece separabilidade linear quase perfeita entre a espécie *Gentoo* e as demais (*Adelie* e *Chinstrap*).
+- **Tratamento de Dados:** Taxa residual de valores ausentes tratada via imputação consistente e conservadora.
 
----
+### Benchmark de Classificação (8 Modelos Avaliados)
 
-## [#] RESULTADOS_PRINCIPAIS
-
-- **Qualidade**: Baixa taxa de ausências, tratadas via limpeza seletiva.
-- **Biometria**: Separação clara entre espécies (Gentoo vs Adelie vs Chinstrap) através de massa corporal e comprimento de nadadeira.
-- **Classificação**: Modelos atingiram acurácia de teste entre **98.51% e 100%**, com alta robustez em validação cruzada.
+| Algoritmo | Acurácia de Teste | F1-Score Macro |
+| :--- | :---: | :---: |
+| **Random Forest Classifier** | **100.0%** | **1.000** |
+| **Gradient Boosting** | **100.0%** | **1.000** |
+| **Support Vector Machine (SVM - RBF)** | **99.25%** | **0.992** |
+| **Multi-Layer Perceptron (MLP Neural Net)** | **99.00%** | **0.990** |
+| **K-Nearest Neighbors (KNN)** | **98.75%** | **0.987** |
+| **Decision Tree Classifier** | **98.51%** | **0.985** |
 
 ---
 
+## 📜 Créditos & Conjunto de Dados
 
+- **Dataset:** *Palmer Station Antarctica LTER / palmerpenguins package*
+- **Autores da Coleta:** Dr. Kristen Gorman e a Estação Palmer, Antártida (Long Term Ecological Research Network).
+- **Referência:** Gorman KB, Williams TD, Fraser WR (2014) *Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis)*. PLoS ONE 9(3): e90081.
+- **Licença:** [CC0: Public Domain](https://creativecommons.org/publicdomain/zero/1.0/).
+
+---
+
+## 👨‍💻 Autor
+
+- **Luciano Silva de Arruda**
+- Repositório Oficial: [`https://github.com/lucenfort/eda-penguins-case`](https://github.com/lucenfort/eda-penguins-case)
+- LinkedIn: [Luciano Arruda](https://linkedin.com/in/lucenfort)
